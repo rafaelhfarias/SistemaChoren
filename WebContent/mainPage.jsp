@@ -1,8 +1,8 @@
 <%@ page import="connection.ConexaoMySQL"%>
 <%@ page import = "java.io.*,java.util.*,java.sql.*"%>
 <%@ page import = "javax.servlet.http.*,javax.servlet.*" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix = "c"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/sql" prefix = "sql"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix ="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/sql" prefix ="sql"%>
 
 <!DOCTYPE html>
 <html>
@@ -33,13 +33,13 @@
             <li class="nav-item">
                 <a class="nav-link" href="#">
                     <span data-feather="file"></span>
-                    Cartıes
+                    Cart√µes
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#">
                     <span data-feather="shopping-cart"></span>
-                    Gr·ficos
+                    Gr√°ficos
                 </a>
             </li>
         </ul>
