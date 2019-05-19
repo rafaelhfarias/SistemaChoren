@@ -6,7 +6,7 @@
 
 <%@page import="connection.BD"%>
 <%@page import="util.Cartao"%>
-<%@page import="router.NewServlet"%>
+<%@page import="router.Router"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ page import="connection.ConexaoMySQL"%>
 <%@ page import = "java.io.*,java.util.*,java.sql.*"%>
