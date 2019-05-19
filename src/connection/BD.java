@@ -86,7 +86,7 @@ public class BD {
             String query = "INSERT INTO Cartao (id_usuario, numero, limite, total, dt_validade, dia_vencimento) values (?,?,?,?,?,?)";
             try {
                 PreparedStatement SQL = con.prepareStatement(query);
-                SQL.setInt(1, NewServlet.getId());
+                SQL.setInt(1, Router.getId());
                 SQL.setString(2, numero);
                 SQL.setDouble(3, limite);
                 SQL.setInt(4, 0);

@@ -20,7 +20,7 @@
 <title>Registro de Transação</title>
 </head>
 <body>
-<form action="NewServlet" method="get">	
+<form action="Router" method="get">	
 		<table>
 			<tr>
 				<td>Nome:</td>
@@ -57,7 +57,7 @@
 				<td>Cartão:</td>
 				<td>
                                     <select name="card">
-                                        <%Cartao[] cartoes = BD.getCartoes(NewServlet.getId());
+                                        <%Cartao[] cartoes = BD.getCartoes(Router.getId());
                                             int tam = 0;
                                             while (cartoes[tam].getId() != -1){
                                                 out.print("<option value='" + String.valueOf(cartoes[tam].getId()) + "'>" + String.valueOf(cartoes[tam].getNumero()) + "</option>");
