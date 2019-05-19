@@ -1,6 +1,7 @@
 <%@ page import="connection.ConexaoMySQL"%>
 <%@ page import = "java.io.*,java.util.*,java.sql.*"%>
 <%@ page import = "javax.servlet.http.*,javax.servlet.*" %>
+<%@ page import="router.Router"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix ="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/sql" prefix ="sql"%>
 
@@ -9,13 +10,13 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Cry System</title>
+    <title>Suas financas</title>
     <link rel="stylesheet" type="text/css" href="css/bootstrap.css">
 </head>
 
 <body>
     <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
-        <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Cry System</a>
+        <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Suas financas</a>
         <ul class="navbar-nav px-3">
             <li class="nav-item text-nowrap">
                 <a class="nav-link" href="#">Sign out</a>
@@ -33,13 +34,13 @@
             <li class="nav-item">
                 <a class="nav-link" href="#">
                     <span data-feather="file"></span>
-                    Cartões
+                    Cartoes
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#">
                     <span data-feather="shopping-cart"></span>
-                    Gráficos
+                    Graficos
                 </a>
             </li>
         </ul>
@@ -66,6 +67,17 @@
         </table>
 
     </main>
+
+    <form action="Router" method="get">
+        <table>
+            <tr>
+                <td><%=Router.getId()%></td>
+            </tr>
+            
+        </table>
+        <input type="submit" name="path" value="Cadastrar Cartao">
+        <input type="submit" name="path" value="Registrar Transacao">
+    </form>
 
 
     <script type="text/javascript" src="js/bootstrap.js"></script>
