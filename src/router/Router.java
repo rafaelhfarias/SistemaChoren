@@ -69,7 +69,7 @@ public class Router extends HttpServlet {
                         BD.insereUsuario(nome, email, senha);
                         nextPage = "index.html";
                         break;        
-                case "Cadastrar Cartão":
+                case "Cadastrar Cartao":
                         nextPage = "cadastrocard.html";
                         break;
                 case "Registrar Transacao":
