@@ -4,13 +4,16 @@
  * and open the template in the editor.
  */
 package connection;
-
+import com.google.gson.*;
 import static connection.ConexaoMySQL.getConexaoMySQL;
-import java.sql.Date;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import router.Router;
@@ -116,5 +119,76 @@ public class BD {
                 Logger.getLogger(ConexaoMySQL.class.getName()).log(Level.SEVERE, null, ex);
             }
             
+        }
+        
+        public static String getDespesasPorCategoria(){
+            Connection con = ConexaoMySQL.getConexaoMySQL();
+            Map<String,Integer> result = new HashMap<String,Integer>();
+            String resultJson;
+            String query = "SELECT categoria,sum(valor) as saldo FROM Transacao WHERE month(data) = (?) AND valor < 0 GROUP BY categoria";
+            try {
+                PreparedStatement sql = con.prepareStatement(query);
+                Date date = new java.util.Date();
+                LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                int month = localDate.getMonthValue();
+                sql.setInt(1, month);
+                ResultSet rs = sql.executeQuery();
+                while(rs.next()){
+                	result.put(rs.getString("categoria"),rs.getInt("saldo"));
+                }
+                Gson gson = new Gson();
+                resultJson = gson.toJson(result);
+                return resultJson;
+            } catch (SQLException ex) {
+                Logger.getLogger(ConexaoMySQL.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            return "";
+        }
+        
+        public static String getReceitaPorCategoria(){
+            Connection con = ConexaoMySQL.getConexaoMySQL();
+            Map<String,Integer> result = new HashMap<String,Integer>();
+            String resultJson;
+            String query = "SELECT categoria,sum(valor) as saldo FROM Transacao WHERE month(data) = (?) AND valor > 0 GROUP BY categoria";
+            try {
+                PreparedStatement sql = con.prepareStatement(query);
+                Date date = new java.util.Date();
+                LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                int month = localDate.getMonthValue();
+                sql.setInt(1, month);
+                ResultSet rs = sql.executeQuery();
+                while(rs.next()){
+                	result.put(rs.getString("categoria"),rs.getInt("saldo"));
+                }
+                Gson gson = new Gson();
+                resultJson = gson.toJson(result);
+                return resultJson;
+            } catch (SQLException ex) {
+                Logger.getLogger(ConexaoMySQL.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            return "";
+        }
+        public static double getSaldoMensal(){
+            Connection con = ConexaoMySQL.getConexaoMySQL();
+            String query = "SELECT sum(valor) as saldo FROM Transacao WHERE month(data) = (?)";
+            double result = 0;
+            try {
+                PreparedStatement sql = con.prepareStatement(query);
+                Date date = new java.util.Date();
+                LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                int month = localDate.getMonthValue();
+                sql.setInt(1, month);
+                ResultSet rs = sql.executeQuery();
+                while(rs.next()){
+                	result = rs.getDouble("saldo");
+                }
+                return result ;
+            } catch (SQLException ex) {
+                Logger.getLogger(ConexaoMySQL.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            return result;
         }
 }
