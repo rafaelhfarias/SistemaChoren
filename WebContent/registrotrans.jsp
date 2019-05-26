@@ -40,14 +40,14 @@
 				<td>Categoria:</td>
 				<td>	 <select name="category">
                             <option value="Receita">Receita</option>
-                            <option value="Alimentação">Alimentação</option>
+                            <option value="Alimentação">Alimentacao</option>
                             <option value="Casa">Casa</option>
-                            <option value="Comunicação">Comunicação</option>
+                            <option value="Comunicação">Comunicacao</option>
                             <option value="Despesas Pessoais">Despesas Pessoais</option>
                             <option value="Educação">Educação</option>
                             <option value="Investimento">Investimento</option>
                             <option value="Lazer">Lazer</option>
-                            <option value="Saúde">Saúde</option>
+                            <option value="Saude">Saúde</option>
                             <option value="Tarifas e Impostos">Tarifas e Impostos</option>
                             <option value="Transporte">Transporte</option>
                             <option value="Outros">Outros</option>
@@ -57,6 +57,7 @@
 				<td>Cartão:</td>
 				<td>
                                     <select name="card">
+                                        <option value="-1">Sem cartão</option>
                                         <%Cartao[] cartoes = BD.getCartoes(Router.getId());
                                             int tam = 0;
                                             while (cartoes[tam].getId() != -1){
@@ -67,10 +68,15 @@
                                         
                                     </select></td>
 			</tr>
+                        <tr>
+				<td>Parcelas:</td>
+                                <td>	<input type="number" step="1" name="parcela" min="1" max="12">
+  				</td>
+			</tr>
 		</table>
 		<br/>
 
-	<button type="submit" name="path" value="cadastrarcard">Cadastrar</button>
+	<button type="submit" name="path" value="registrartrans">Cadastrar</button>
 </form>
 </body>
 </html>
