@@ -10,6 +10,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
+import java.text.ParseException;
 import java.time.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -64,6 +66,23 @@ public class BD {
             
             return -1;
         }
+        public static String getNome(int id){
+            Connection con = ConexaoMySQL.getConexaoMySQL();
+            //System.out.println(status);
+            String query = "SELECT nome FROM Usuario WHERE id = '" + id + "'";
+            try {
+                
+                PreparedStatement sql = con.prepareStatement(query);
+                ResultSet rs = sql.executeQuery();
+                rs.next();
+                return rs.getString("nome");
+                
+            } catch (SQLException ex) {
+                Logger.getLogger(ConexaoMySQL.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            return "Desconhecido";
+        }
         public static Cartao[] getCartoes(int id){
             Connection con = ConexaoMySQL.getConexaoMySQL();
             Cartao[] result = new Cartao[100];
@@ -76,6 +95,26 @@ public class BD {
                     result[i++] = new Cartao(rs.getInt("id"),rs.getInt("id_usuario"),rs.getString("numero"),rs.getDouble("limite"),rs.getDouble("total"),rs.getDate("dt_validade"),rs.getInt("dia_vencimento"));
                 }
                 result[i] = Cartao.invalido();
+                return result;
+            } catch (SQLException ex) {
+                Logger.getLogger(ConexaoMySQL.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            return result;
+        }
+        public static double getLimiteDisp(int id){
+            Connection con = ConexaoMySQL.getConexaoMySQL();
+            double result = 0;
+            String query = "SELECT (limite,total) FROM Cartao WHERE id = '" + id + "'";
+            try {
+                PreparedStatement sql = con.prepareStatement(query);
+                ResultSet rs = sql.executeQuery();
+                int i=0;
+                while(rs.next()){
+                    result = rs.getDouble("limite");
+                    result -= rs.getDouble("total");
+                }
+                
                 return result;
             } catch (SQLException ex) {
                 Logger.getLogger(ConexaoMySQL.class.getName()).log(Level.SEVERE, null, ex);
@@ -189,6 +228,141 @@ public class BD {
                 Logger.getLogger(ConexaoMySQL.class.getName()).log(Level.SEVERE, null, ex);
             }
             
+            return result;
+        }
+        public static java.sql.Date getValidade(int id){
+            Connection con = ConexaoMySQL.getConexaoMySQL();
+            java.sql.Date result = new java.sql.Date(0);
+            String query = "SELECT dt_validade FROM Cartao WHERE id = '" + id + "'";
+            try {
+                PreparedStatement sql = con.prepareStatement(query);
+                ResultSet rs = sql.executeQuery();
+                int i=0;
+                while(rs.next()){
+                    result = rs.getDate("dt_validade");
+                }
+                
+                return result;
+            } catch (SQLException ex) {
+                Logger.getLogger(ConexaoMySQL.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            return result;
+        }
+        
+        public static int getDiaFat(int id){
+            Connection con = ConexaoMySQL.getConexaoMySQL();
+            int result = 1;
+            String query = "SELECT dia_vencimento FROM Cartao WHERE id = '" + id + "'";
+            try {
+                PreparedStatement sql = con.prepareStatement(query);
+                ResultSet rs = sql.executeQuery();
+                while(rs.next()){
+                    result = rs.getInt("dia_vencimento");
+                    
+                }
+                
+                return result;
+            } catch (SQLException ex) {
+                Logger.getLogger(ConexaoMySQL.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            return result;
+        }
+        
+        public static void atualizaTotal(int id){
+            Connection con = ConexaoMySQL.getConexaoMySQL();
+            String query = "SELECT * FROM Cartao WHERE id_usuario = '" + id + "'";
+            int[] idCartao = new int[100];
+            int i=0;
+            try {
+                PreparedStatement sql = con.prepareStatement(query);
+                ResultSet rs = sql.executeQuery();
+                
+                while(rs.next()){
+                    idCartao[i++] = rs.getInt("id");
+                }
+                
+            } catch (SQLException ex) {
+                Logger.getLogger(ConexaoMySQL.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            for (int j=0;j<i;j++){
+                query = "UPDATE Cartao c SET c.total=(CASE WHEN (SELECT COUNT(valor) FROM Transacao t WHERE t.cartao=c.id AND t.data BETWEEN '" + String.valueOf(Data.inicioFat(getDiaFat(idCartao[j]))) + "' AND '" + String.valueOf(Data.fimFat(getDiaFat(idCartao[j]))) + "' GROUP BY cartao) > 0 THEN (SELECT SUM(-valor) FROM Transacao t WHERE t.cartao=c.id AND t.data BETWEEN '" + String.valueOf(Data.inicioFat(getDiaFat(idCartao[j]))) + "' AND '" + String.valueOf(Data.fimFat(getDiaFat(idCartao[j]))) + "' GROUP BY cartao) ELSE '0' END)";
+                try {
+                    PreparedStatement sql = con.prepareStatement(query);
+                    sql.executeUpdate();
+                    sql.close();
+                    
+                } catch (SQLException ex) {
+                    Logger.getLogger(ConexaoMySQL.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+                
+            }
+        }
+        public static void insereTrans(int id_usuario,String nome, double valor, java.sql.Date data, String categoria, int cartao, int p_atual, int p_total){
+            Connection con = ConexaoMySQL.getConexaoMySQL();
+            //System.out.println(status);
+            String query = "INSERT INTO Transacao (id_usuario, nome, valor, data, categoria, cartao, parcela_atual, parcela_total) values (?,?,?,?,?,?,?,?)";
+            try {
+                valor = -valor;
+                PreparedStatement SQL = con.prepareStatement(query);
+                SQL.setInt(1, id_usuario);
+                SQL.setString(2, nome);
+                SQL.setDouble(3, valor);
+                SQL.setDate(4, data);
+                SQL.setString(5, categoria);
+                SQL.setInt(6, cartao);
+                SQL.setInt(7, p_atual);
+                SQL.setInt(8, p_total);
+                SQL.execute();
+                con.close();
+                //System.out.println("Cadastrou");
+            } catch (SQLException ex) {
+                Logger.getLogger(ConexaoMySQL.class.getName()).log(Level.SEVERE, null, ex);
+            } 
+            
+        }
+        public static void insereTrans(int id_usuario,String nome, double valor, java.sql.Date data, String categoria, int p_atual, int p_total) throws ParseException{
+            Connection con = ConexaoMySQL.getConexaoMySQL();
+            //System.out.println(status);
+            String query = "INSERT INTO Transacao (id_usuario, nome, valor, data, categoria, cartao, parcela_atual, parcela_total) values (?,?,?,?,?,?,?,?)";
+            try {
+                if (!categoria.equals("Receita"))valor = -valor;
+                PreparedStatement SQL = con.prepareStatement(query);
+                SQL.setInt(1, id_usuario);
+                SQL.setString(2, nome);
+                SQL.setDouble(3, valor);
+                SQL.setDate(4, data);
+                SQL.setString(5, categoria);
+                SQL.setNull(6, Types.INTEGER);
+                SQL.setInt(7, p_atual);
+                SQL.setInt(8, p_total);
+                SQL.execute();
+                con.close();
+                //System.out.println("Cadastrou");
+            } catch (SQLException ex) {
+                Logger.getLogger(ConexaoMySQL.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+        }
+        public static double getSaldo(int id){
+            double result = 0;
+            Connection con = ConexaoMySQL.getConexaoMySQL();
+            //System.out.println(status);
+            String query = "SELECT valor FROM Transacao WHERE id_usuario = '" + id + "' AND data < CURRENT_DATE()";
+            try {
+                PreparedStatement sql = con.prepareStatement(query);
+                ResultSet rs = sql.executeQuery();
+                while(rs.next()){
+                    result += rs.getDouble("valor");
+                }
+                con.close();
+                return result;
+                //System.out.println("Cadastrou");
+            } catch (SQLException ex) {
+                Logger.getLogger(ConexaoMySQL.class.getName()).log(Level.SEVERE, null, ex);
+            }
             return result;
         }
 }
