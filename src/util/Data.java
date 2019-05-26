@@ -5,6 +5,7 @@
  */
 package util;
 
+import java.sql.Date;
 import java.util.Calendar;
 
 /**
@@ -12,6 +13,28 @@ import java.util.Calendar;
  * @author Lincoln
  */
 public class Data {
+    public static java.sql.Date inicioFat(int dia){
+        Calendar cal = Calendar.getInstance();
+        if (cal.get(Calendar.DAY_OF_MONTH) <= dia){
+            cal.set(Calendar.DAY_OF_MONTH, dia);
+            cal.add(Calendar.MONTH, -1);
+        }
+        else{
+            cal.set(Calendar.DAY_OF_MONTH, dia);
+        }
+        return new java.sql.Date(cal.getTime().getTime());
+    }
+    public static java.sql.Date fimFat(int dia){
+        Calendar cal = Calendar.getInstance();
+        if (cal.get(Calendar.DAY_OF_MONTH) <= dia){
+            cal.set(Calendar.DAY_OF_MONTH, dia);
+        }
+        else{
+            cal.set(Calendar.DAY_OF_MONTH, dia);
+            cal.add(Calendar.MONTH, 1);
+        }
+        return new java.sql.Date(cal.getTime().getTime());
+    }
     public static java.sql.Date dt(int ano, int mes, int dia){
         Calendar cal = Calendar.getInstance();
         cal.set(ano, mes-1, dia);
@@ -27,7 +50,20 @@ public class Data {
             return (31-(mes%2));
         }
     }
+    public static boolean beforeM(java.sql.Date val, Date data, int parcela){
+        Calendar c = Calendar.getInstance();
+        c.setTime(data);
+        c.add(Calendar.MONTH, parcela);
+        return val.before(new java.sql.Date(c.getTime().getTime()));
+    }
+    public static java.sql.Date addM(java.sql.Date val, int parcela){
+        Calendar c = Calendar.getInstance();
+        c.setTime(val);
+        c.add(Calendar.MONTH, parcela);
+        return new java.sql.Date(c.getTime().getTime());
+    }
     public static void main(String args[]){
-        System.out.println(getLastDay(2,2019));
+        System.out.println(inicioFat(6));
+        System.out.println(fimFat(6));
     }
 }
