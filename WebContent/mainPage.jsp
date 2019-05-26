@@ -107,7 +107,8 @@
     <form action="Router" method="get">
         <table>
             <tr>
-                <td><%=Router.getId()%></td>
+                <%BD.atualizaTotal(Router.getId());%>
+                <td>Bem vindo <%=BD.getNome(Router.getId())%></td>
             </tr>
 
         </table>
