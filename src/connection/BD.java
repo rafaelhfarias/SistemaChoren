@@ -110,7 +110,7 @@ public class BD {
         public static double getLimiteDisp(int id){
             Connection con = ConexaoMySQL.getConexaoMySQL();
             double result = 0;
-            String query = "SELECT (limite,total) FROM Cartao WHERE id = '" + id + "'";
+            String query = "SELECT limite, total FROM Cartao WHERE id = '" + id + "'";
             try {
                 PreparedStatement sql = con.prepareStatement(query);
                 ResultSet rs = sql.executeQuery();
@@ -120,7 +120,6 @@ public class BD {
                     result -= rs.getDouble("total");
                 }
                 rs.close();
-                return result;
             } catch (SQLException ex) {
                 Logger.getLogger(ConexaoMySQL.class.getName()).log(Level.SEVERE, null, ex);
             }
