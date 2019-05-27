@@ -102,7 +102,8 @@ public class Router extends HttpServlet {
                         else{
                             if (categoria.equals("Receita") || Data.beforeM(BD.getValidade(new Integer(cartao)), dataT, new Integer(parcela)) || BD.getLimiteDisp(new Integer(cartao)) < new Double(valor)){
                                 nextPage = "registrotrans.jsp";
-                               // System.out.println(Data.beforeM(BD.getValidade(new Integer(cartao)), dataT, new Integer(parcela)));
+                                //System.out.println(Data.beforeM(BD.getValidade(new Integer(cartao)), dataT, new Integer(parcela)));
+                                //System.out.println(cartao);
                                 //System.out.println(BD.getLimiteDisp(new Integer(cartao)));
                             }
                             else{
