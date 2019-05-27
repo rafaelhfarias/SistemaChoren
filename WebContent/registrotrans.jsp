@@ -40,11 +40,11 @@
 				<td>Categoria:</td>
 				<td>	 <select name="category">
                             <option value="Receita">Receita</option>
-                            <option value="Alimentação">Alimentacao</option>
+                            <option value="Alimentacao">Alimentação</option>
                             <option value="Casa">Casa</option>
-                            <option value="Comunicação">Comunicacao</option>
+                            <option value="Comunicacao">Comunicação</option>
                             <option value="Despesas Pessoais">Despesas Pessoais</option>
-                            <option value="Educação">Educação</option>
+                            <option value="Educacao">Educação</option>
                             <option value="Investimento">Investimento</option>
                             <option value="Lazer">Lazer</option>
                             <option value="Saude">Saúde</option>
