@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.text.ParseException;
 import java.time.*;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Date;
@@ -21,6 +22,7 @@ import java.util.logging.Logger;
 import router.Router;
 import util.Cartao;
 import util.Data;
+import util.Transacao;
 
 /**
  *
@@ -37,10 +39,10 @@ public class BD {
                 rs.next();
                 
                 if (pass.equals(rs.getString("senha"))){
-                    rs.close();
+                    con.close();
                     return true;
                 }else {
-                    rs.close();
+                    con.close();
                     return false;
                 }
                 
@@ -60,8 +62,7 @@ public class BD {
                 ResultSet rs = sql.executeQuery();
                 rs.next();
                 result = rs.getInt("id");
-                rs.close();
-                
+                con.close();
             } catch (SQLException ex) {
                 Logger.getLogger(ConexaoMySQL.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -79,15 +80,14 @@ public class BD {
                 ResultSet rs = sql.executeQuery();
                 rs.next();
                 result = rs.getString("nome");
-                rs.close();
-                
+                con.close();
             } catch (SQLException ex) {
                 Logger.getLogger(ConexaoMySQL.class.getName()).log(Level.SEVERE, null, ex);
             }
             
             return result;
         }
-        public static Cartao[] getCartoes(int id){
+        public static Cartao[] getCartoes(int id){//Retorna cartoes do usuario id finalizado por um cartao invalido com id -1
             Connection con = ConexaoMySQL.getConexaoMySQL();
             Cartao[] result = new Cartao[100];
             String query = "SELECT * FROM Cartao WHERE id_usuario = '" + id + "'";
@@ -99,7 +99,31 @@ public class BD {
                     result[i++] = new Cartao(rs.getInt("id"),rs.getInt("id_usuario"),rs.getString("numero"),rs.getDouble("limite"),rs.getDouble("total"),rs.getDate("dt_validade"),rs.getInt("dia_vencimento"));
                 }
                 result[i] = Cartao.invalido();
-                rs.close();
+
+                con.close();
+                return result;
+            } catch (SQLException ex) {
+                Logger.getLogger(ConexaoMySQL.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            return result;
+        }
+        public static Transacao[] getTransacoesMensal(int id){
+            Connection con = ConexaoMySQL.getConexaoMySQL();
+            Transacao[] result = new Transacao[1000];
+            Calendar cal = Calendar.getInstance();
+            int dia = cal.get(Calendar.DAY_OF_MONTH);
+            String query = "SELECT * FROM Transacao WHERE id_usuario = '" + id + "' AND data BETWEEN '" + String.valueOf(Data.inicioFat(dia)) + "' AND '" + String.valueOf(Data.fimFat(dia)) + "'";
+            try {
+                PreparedStatement sql = con.prepareStatement(query);
+                ResultSet rs = sql.executeQuery();
+                int i=0;
+                while(rs.next()){
+                    result[i++] = new Transacao(rs.getInt("id"),rs.getInt("id_usuario"),rs.getString("nome"),rs.getDouble("valor"),rs.getDate("data"),rs.getString("categoria"),rs.getInt("cartao"),rs.getInt("parcela_atual"),rs.getInt("parcela_total"));
+                }
+                result[i] = Transacao.invalido();
+                
+                con.close();
                 return result;
             } catch (SQLException ex) {
                 Logger.getLogger(ConexaoMySQL.class.getName()).log(Level.SEVERE, null, ex);
@@ -119,7 +143,7 @@ public class BD {
                     result = rs.getDouble("limite");
                     result -= rs.getDouble("total");
                 }
-                rs.close();
+                con.close();
             } catch (SQLException ex) {
                 Logger.getLogger(ConexaoMySQL.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -179,7 +203,7 @@ public class BD {
                 while(rs.next()){
                 	result.put(rs.getString("categoria"),rs.getInt("saldo"));
                 }
-                rs.close();
+                con.close();
                 Gson gson = new Gson();
                 resultJson = gson.toJson(result);
                 return resultJson;
@@ -205,7 +229,7 @@ public class BD {
                 while(rs.next()){
                 	result.put(rs.getString("categoria"),rs.getInt("saldo"));
                 }
-                rs.close();
+                con.close();
                 Gson gson = new Gson();
                 resultJson = gson.toJson(result);
                 return resultJson;
@@ -229,7 +253,7 @@ public class BD {
                 while(rs.next()){
                 	result = rs.getDouble("saldo");
                 }
-                rs.close();
+                con.close();
                 return result ;
             } catch (SQLException ex) {
                 Logger.getLogger(ConexaoMySQL.class.getName()).log(Level.SEVERE, null, ex);
@@ -249,7 +273,7 @@ public class BD {
                     result = rs.getDate("dt_validade");
                 }
                 
-                rs.close();
+                con.close();
             } catch (SQLException ex) {
                 Logger.getLogger(ConexaoMySQL.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -269,7 +293,7 @@ public class BD {
                     
                 }
                 
-                rs.close();
+                con.close();
             } catch (SQLException ex) {
                 Logger.getLogger(ConexaoMySQL.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -291,7 +315,7 @@ public class BD {
                     diaFat[i] = rs.getInt("dia_vencimento");
                     idCartao[i++] = rs.getInt("id");
                 }
-                rs.close();
+                con.close();
                 
             } catch (SQLException ex) {
                 Logger.getLogger(ConexaoMySQL.class.getName()).log(Level.SEVERE, null, ex);
@@ -368,7 +392,7 @@ public class BD {
                 while(rs.next()){
                     result += rs.getDouble("valor");
                 }
-                rs.close();
+                con.close();
                 
                 //System.out.println("Cadastrou");
             } catch (SQLException ex) {
