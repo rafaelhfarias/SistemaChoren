@@ -2,23 +2,29 @@
 <html>
 <head>
 <meta charset="utf-8">
+<link rel="stylesheet" type="text/css" href="css/bootstrap.css">
 <title>Cadastro de Cartão</title>
 </head>
 <body>
-<form action="Router" method="get">	
+    <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
+        <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Cadastro de Cartão</a>
+    </nav>
+<form action="Router" method="get">
+    <div align="center">
+                <br/>
+                <br/>
 		<table>
 			<tr>
 				<td>Número:</td>
-				<td>		 <input type="text" name="number">
-</td>
+				<td><input type="text" name="number"></td>
 			</tr>
 			<tr>
 				<td>Limite:</td>
-				<td>	 <input type="number" step="0.01" name="limit"></td>
+				<td><input type="number" step="0.01" name="limit"></td>
 			</tr>
 			<tr>
 				<td>Data de Validade:</td>
-				<td>	<select name="month">
+				<td><select name="month">
     						<option value="1">01</option>
     						<option value="2">02</option>
     						<option value="3">03</option>
@@ -31,8 +37,8 @@
     						<option value="10">10</option>
     						<option value="11">11</option>
     						<option value="12">12</option>
-  					</select>
-  					<select name="year">
+  				</select>
+  				<select name="year">
     						<option value="2019">2019</option>
     						<option value="2020">2020</option>
     						<option value="2021">2021</option>
@@ -45,17 +51,18 @@
     						<option value="2028">2028</option>
     						<option value="2029">2029</option>
     						<option value="2030">2030</option>
-  					</select>
+  				</select>
   				</td>
 			</tr>
 			<tr>
 				<td>Data de Vencimento da Fatura:</td>
-				<td>	 <input type="number" min="1" max="28" name="bill"></td>
+				<td><input type="number" min="1" max="28" name="bill"></td>
 			</tr>
 		</table>
 		<br/>
-
-	<button type="submit" name="path" value="registrarcard">Cadastrar</button>
+	<button class="btn btn-dark" type="submit" name="path" value="registrarcard">Cadastrar</button>
+        <button class="btn btn-dark" type="submit" name="path" value="voltar">Voltar</button>
+    </div>
 </form>
 </body>
 </html>

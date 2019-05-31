@@ -302,37 +302,39 @@ public class BD {
         }
         
         public static void atualizaTotal(int id){
-            Connection con = ConexaoMySQL.getConexaoMySQL();
-            String query = "SELECT * FROM Cartao WHERE id_usuario = '" + id + "'";
-            int[] idCartao = new int[100];
-            int[] diaFat = new int[100];
-            int i=0;
-            try {
-                PreparedStatement sql = con.prepareStatement(query);
-                ResultSet rs = sql.executeQuery();
-                
-                while(rs.next()){
-                    diaFat[i] = rs.getInt("dia_vencimento");
-                    idCartao[i++] = rs.getInt("id");
-                }
-                con.close();
-                
-            } catch (SQLException ex) {
-                Logger.getLogger(ConexaoMySQL.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            con = ConexaoMySQL.getConexaoMySQL();
-            for (int j=0;j<i;j++){
-                query = "UPDATE Cartao c SET c.total=(CASE WHEN (SELECT COUNT(valor) FROM Transacao t WHERE t.cartao=c.id AND t.data BETWEEN '" + String.valueOf(Data.inicioFat(diaFat[j])) + "' AND '" + String.valueOf(Data.fimFat(diaFat[j])) + "' GROUP BY cartao) > 0 THEN (SELECT SUM(-valor) FROM Transacao t WHERE t.cartao=c.id AND t.data BETWEEN '" + String.valueOf(Data.inicioFat(diaFat[j])) + "' AND '" + String.valueOf(Data.fimFat(diaFat[j])) + "' GROUP BY cartao) ELSE '0' END)";
+            if (id > 0){
+                Connection con = ConexaoMySQL.getConexaoMySQL();
+                String query = "SELECT * FROM Cartao WHERE id_usuario = '" + id + "'";
+                int[] idCartao = new int[100];
+                int[] diaFat = new int[100];
+                int i=0;
                 try {
                     PreparedStatement sql = con.prepareStatement(query);
-                    sql.executeUpdate();
-                    sql.close();
-                    
+                    ResultSet rs = sql.executeQuery();
+
+                    while(rs.next()){
+                        diaFat[i] = rs.getInt("dia_vencimento");
+                        idCartao[i++] = rs.getInt("id");
+                    }
+                    con.close();
+
                 } catch (SQLException ex) {
                     Logger.getLogger(ConexaoMySQL.class.getName()).log(Level.SEVERE, null, ex);
                 }
+                con = ConexaoMySQL.getConexaoMySQL();
+                for (int j=0;j<i;j++){
+                    query = "UPDATE Cartao c SET c.total=(CASE WHEN (SELECT COUNT(valor) FROM Transacao t WHERE t.cartao=c.id AND t.data BETWEEN '" + String.valueOf(Data.inicioFat(diaFat[j])) + "' AND '" + String.valueOf(Data.fimFat(diaFat[j])) + "' GROUP BY cartao) > 0 THEN (SELECT SUM(-valor) FROM Transacao t WHERE t.cartao=c.id AND t.data BETWEEN '" + String.valueOf(Data.inicioFat(diaFat[j])) + "' AND '" + String.valueOf(Data.fimFat(diaFat[j])) + "' GROUP BY cartao) ELSE '0' END)";
+                    try {
+                        PreparedStatement sql = con.prepareStatement(query);
+                        sql.executeUpdate();
+                        sql.close();
 
-                
+                    } catch (SQLException ex) {
+                        Logger.getLogger(ConexaoMySQL.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+
+
+                }
             }
         }
         public static void insereTrans(int id_usuario,String nome, double valor, java.sql.Date data, String categoria, int cartao, int p_atual, int p_total){

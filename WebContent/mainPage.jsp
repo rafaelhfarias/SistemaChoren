@@ -23,7 +23,7 @@
 
 <body>
     <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
-        <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Suas financas</a>
+        <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Bem vindo as suas finanças, <%=BD.getNome(Router.getId())%></a>
         <ul class="navbar-nav px-3">
             <li class="nav-item text-nowrap">
                 <a class="nav-link" href="#">Sign out</a>
@@ -105,16 +105,11 @@
     </main>
 
     <form action="Router" method="get">
-        <table>
-            <tr>
-                <%BD.atualizaTotal(Router.getId());%>
-                <td>Bem vindo <%=BD.getNome(Router.getId())%></td>
-            </tr>
-
-        </table>
+        <%BD.atualizaTotal(Router.getId());%>
+        <div align="center">
         <button class="btn btn-dark" type="submit" name="path" value="Cadastrar Cartao">Cadastrar Cartao</button>
         <button class="btn btn-dark" type="submit" name="path" value="Registrar Transacao">Registrar Transacao</button>
-
+        </div>>
     </form>
     <%
         String despesasMapJson = BD.getDespesasPorCategoria();
