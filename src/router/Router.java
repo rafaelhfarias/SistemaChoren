@@ -70,6 +70,9 @@ public class Router extends HttpServlet {
                     case "Cadastrar":
                         nextPage = "cadastro.html";
                         break;
+                    case "voltar":
+                        nextPage = "mainPage.jsp";
+                        break;
                     case "cadastrarUser":
                         String email = request.getParameter("email");
                         String senha = request.getParameter("password");

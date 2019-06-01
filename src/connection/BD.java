@@ -213,6 +213,32 @@ public class BD {
             
             return "";
         }
+        public static String getDespesasPorCategoria(int id){
+            Connection con = ConexaoMySQL.getConexaoMySQL();
+            Map<String,Integer> result = new HashMap<String,Integer>();
+            String resultJson;
+            String query = "SELECT categoria,sum(valor) as saldo FROM Transacao WHERE month(data) = (?) AND valor < 0 AND id_usuario = (?) GROUP BY categoria";
+            try {
+                PreparedStatement sql = con.prepareStatement(query);
+                Date date = new java.util.Date();
+                LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                int month = localDate.getMonthValue();
+                sql.setInt(1, month);
+                sql.setInt(2,id);
+                ResultSet rs = sql.executeQuery();
+                while(rs.next()){
+                	result.put(rs.getString("categoria"),rs.getInt("saldo"));
+                }
+                con.close();
+                Gson gson = new Gson();
+                resultJson = gson.toJson(result);
+                return resultJson;
+            } catch (SQLException ex) {
+                Logger.getLogger(ConexaoMySQL.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            return "";
+        }
         
         public static String getReceitaPorCategoria(){
             Connection con = ConexaoMySQL.getConexaoMySQL();
@@ -239,12 +265,61 @@ public class BD {
             
             return "";
         }
+        public static String getReceitaPorCategoria(int id){
+            Connection con = ConexaoMySQL.getConexaoMySQL();
+            Map<String,Integer> result = new HashMap<String,Integer>();
+            String resultJson;
+            String query = "SELECT nome,sum(valor) as saldo FROM Transacao WHERE month(data) = (?) AND valor > 0 AND id_usuario = (?) GROUP BY nome";
+            try {
+                PreparedStatement sql = con.prepareStatement(query);
+                Date date = new java.util.Date();
+                LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                int month = localDate.getMonthValue();
+                sql.setInt(1, month);
+                sql.setInt(2,id);
+                ResultSet rs = sql.executeQuery();
+                while(rs.next()){
+                	result.put(rs.getString("nome"),rs.getInt("saldo"));
+                }
+                con.close();
+                Gson gson = new Gson();
+                resultJson = gson.toJson(result);
+                return resultJson;
+            } catch (SQLException ex) {
+                Logger.getLogger(ConexaoMySQL.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            return "";
+        }
         public static double getSaldoMensal(){
             Connection con = ConexaoMySQL.getConexaoMySQL();
             String query = "SELECT sum(valor) as saldo FROM Transacao WHERE data >= date_add(now(),interval -DAY(now())+1 DAY) AND data <= LAST_DAY(now())";
             double result = 0;
             try {
                 PreparedStatement sql = con.prepareStatement(query);
+                ResultSet rs = sql.executeQuery();
+                while(rs.next()){
+                	result = rs.getDouble("saldo");
+                }
+                con.close();
+                return result ;
+            } catch (SQLException ex) {
+                Logger.getLogger(ConexaoMySQL.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            return result;
+        }
+        public static double getSaldoMensal(int id){
+            Connection con = ConexaoMySQL.getConexaoMySQL();
+            String query = "SELECT sum(valor) as saldo FROM Transacao WHERE month(data) = (?) AND id_usuario = (?)";
+            double result = 0;
+            try {
+                PreparedStatement sql = con.prepareStatement(query);
+                Date date = new java.util.Date();
+                LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                int month = localDate.getMonthValue();
+                sql.setInt(1, month);
+                sql.setInt(2,id);
                 ResultSet rs = sql.executeQuery();
                 while(rs.next()){
                 	result = rs.getDouble("saldo");
@@ -298,37 +373,39 @@ public class BD {
         }
         
         public static void atualizaTotal(int id){
-            Connection con = ConexaoMySQL.getConexaoMySQL();
-            String query = "SELECT * FROM Cartao WHERE id_usuario = '" + id + "'";
-            int[] idCartao = new int[100];
-            int[] diaFat = new int[100];
-            int i=0;
-            try {
-                PreparedStatement sql = con.prepareStatement(query);
-                ResultSet rs = sql.executeQuery();
-                
-                while(rs.next()){
-                    diaFat[i] = rs.getInt("dia_vencimento");
-                    idCartao[i++] = rs.getInt("id");
-                }
-                con.close();
-                
-            } catch (SQLException ex) {
-                Logger.getLogger(ConexaoMySQL.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            con = ConexaoMySQL.getConexaoMySQL();
-            for (int j=0;j<i;j++){
-                query = "UPDATE Cartao c SET c.total=(CASE WHEN (SELECT COUNT(valor) FROM Transacao t WHERE t.cartao=c.id AND t.data BETWEEN '" + String.valueOf(Data.inicioFat(diaFat[j])) + "' AND '" + String.valueOf(Data.fimFat(diaFat[j])) + "' GROUP BY cartao) > 0 THEN (SELECT SUM(-valor) FROM Transacao t WHERE t.cartao=c.id AND t.data BETWEEN '" + String.valueOf(Data.inicioFat(diaFat[j])) + "' AND '" + String.valueOf(Data.fimFat(diaFat[j])) + "' GROUP BY cartao) ELSE '0' END)";
+            if (id > 0){
+                Connection con = ConexaoMySQL.getConexaoMySQL();
+                String query = "SELECT * FROM Cartao WHERE id_usuario = '" + id + "'";
+                int[] idCartao = new int[100];
+                int[] diaFat = new int[100];
+                int i=0;
                 try {
                     PreparedStatement sql = con.prepareStatement(query);
-                    sql.executeUpdate();
-                    sql.close();
-                    
+                    ResultSet rs = sql.executeQuery();
+
+                    while(rs.next()){
+                        diaFat[i] = rs.getInt("dia_vencimento");
+                        idCartao[i++] = rs.getInt("id");
+                    }
+                    con.close();
+
                 } catch (SQLException ex) {
                     Logger.getLogger(ConexaoMySQL.class.getName()).log(Level.SEVERE, null, ex);
                 }
+                con = ConexaoMySQL.getConexaoMySQL();
+                for (int j=0;j<i;j++){
+                    query = "UPDATE Cartao c SET c.total=(CASE WHEN (SELECT COUNT(valor) FROM Transacao t WHERE t.cartao=c.id AND t.data BETWEEN '" + String.valueOf(Data.inicioFat(diaFat[j])) + "' AND '" + String.valueOf(Data.fimFat(diaFat[j])) + "' GROUP BY cartao) > 0 THEN (SELECT SUM(-valor) FROM Transacao t WHERE t.cartao=c.id AND t.data BETWEEN '" + String.valueOf(Data.inicioFat(diaFat[j])) + "' AND '" + String.valueOf(Data.fimFat(diaFat[j])) + "' GROUP BY cartao) ELSE '0' END)";
+                    try {
+                        PreparedStatement sql = con.prepareStatement(query);
+                        sql.executeUpdate();
+                        sql.close();
 
-                
+                    } catch (SQLException ex) {
+                        Logger.getLogger(ConexaoMySQL.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+
+
+                }
             }
         }
         public static void insereTrans(int id_usuario,String nome, double valor, java.sql.Date data, String categoria, int cartao, int p_atual, int p_total){

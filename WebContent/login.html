@@ -2,26 +2,36 @@
 <html>
 <head>
 <meta charset="utf-8">
+<link rel="stylesheet" type="text/css" href="css/bootstrap.css">
 <title>Login</title>
 </head>
 <body>
-<form action="Router" method="get">	
-		<table>
-			<tr>
-				<td>Usuário:</td>
-				<td>		 <input type="text" name="user">
-</td>
-			</tr>
-			<tr>
-				<td>Senha:</td>
-				<td>	 <input type="password" name="password"></td>
-			</tr>
-		</table>
-		<br/>
+    <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
+        <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Login</a>
+    </nav>
+<form action="Router" method="get">
+    <div align="center">
+        <div style="height:300px; width: 300px;">
+        <br/>
+        <br/>
+        <br/>
+        <table>
+                <tr>
+                        <td>Usuário:</td>
+                        <td><input type="text" name="user"></td>
+                </tr>
+                <tr>
+                        <td>Senha:</td>
+                        <td><input type="password" name="password"></td>
+                </tr>
+        </table>
+        <div id="erro"></div>
+        <br/>
 
-	<button type="submit" name="path" value="Conectar">Conectar</button>
-	<button type="submit" name="path" value="Cadastrar">Cadastrar</button>
-
+	<button class="btn btn-dark" type="submit" name="path" value="Conectar">Conectar</button>
+	<button class="btn btn-dark" type="submit" name="path" value="Cadastrar">Cadastrar</button>
+    </div>
+    </div>    
 </form>
 </body>
 </html>
