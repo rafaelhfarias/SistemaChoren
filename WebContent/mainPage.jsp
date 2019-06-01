@@ -3,7 +3,7 @@
 <%@ page import = "java.io.*,java.util.*,java.sql.*"%>
 <%@ page import = "javax.servlet.http.*,javax.servlet.*" %>
 <%@ page import = "java.lang.*" %>
-
+<%@ page import = "util.Transacao"%>
 <%@ page import="router.Router"%>
 <%@ page import="com.google.gson.*"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix ="c"%>
@@ -23,7 +23,7 @@
 
 <body>
     <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
-        <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Bem vindo as suas finanças, <%=BD.getNome(Router.getId())%></a>
+        <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Bem vindo às suas finanças, <%=BD.getNome(Router.getId())%></a>
         <ul class="navbar-nav px-3">
             <li class="nav-item text-nowrap">
                 <a class="nav-link" href="#">Sign out</a>
@@ -55,53 +55,39 @@
     </div>
 
     <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
-        <%double saldo = BD.getSaldoMensal();%>
+        <%double saldo = BD.getSaldoMensal(Router.getId());%>
         <h3>Saldo mensal:
-            <c:choose>
-                <c:when test="${saldo}>0}">
-                    <span class="saldoPos">R$<%out.println(Math.abs(saldo));%></span>
-                </c:when>
-                <c:otherwise>
-                    <span class="saldoNeg">-R$<%out.println(Math.abs(saldo));%></span>
-                </c:otherwise>
-            </c:choose>
+            <%if (saldo >= 0){
+                out.print("R$ " + String.valueOf(saldo));
+            }
+            else out.print("<font color='FF0000'>-R$ " + String.valueOf(-saldo) + "</font>");%>
         </h3>
         <div class="row">
             <div id="despesas_chart_div"></div>
             <div id="receita_chart_div"></div>
         </div>
         <div>
-            <sql:setDataSource var="snapshot" driver="com.mysql.jdbc.Driver"
-                url="jdbc:mysql://remotemysql.com:3306/IJWndC9XfP?useSSL=false&amp;" user="IJWndC9XfP"
-                password="a0aCdB3CHa" />
-
-            <sql:query dataSource="${snapshot}" var="result">
-                SELECT * from Transacao;
-            </sql:query>
-
             <table class="table table-striped table-sm">
-                <tr>
-                    <th>Nome</th>
-                    <th>Valor</th>
-                    <th>Categoria</th>
-                </tr>
-                <c:forEach var="row" items="${result.rows}">
-                    <tr>
-                        <td>
-                            <c:out value="${row.nome}" />
-                        </td>
-                        <td>
-                            <c:out value="${row.valor}" />
-                        </td>
-                        <td>
-                            <c:out value="${row.categoria}" />
-                        </td>
-                    </tr>
-                </c:forEach>
+                <%Transacao[] transacoes = BD.getTransacoesMensal(Router.getId());
+                                            out.print("<th>Nome</th>");
+                                            out.print("<th>Valor</th>");
+                                            out.print("<th>Data</th>");
+                                            out.print("<th>Categoria</th>");
+                                            out.print("<th>Parcela</th>");
+                                            int tam = 0;
+                                            while (transacoes[tam].getId() != -1){
+                                                out.print("<tr>");
+                                                out.print("<td>" + String.valueOf(transacoes[tam].getNome()) + "</td>");
+                                                out.print("<td>" + String.valueOf(transacoes[tam].getValor()) + "</td>");
+                                                out.print("<td>" + String.valueOf(transacoes[tam].getData()) + "</td>");
+                                                out.print("<td>" + String.valueOf(transacoes[tam].getCategoria()) + "</td>");
+                                                out.print("<td>" + String.valueOf(transacoes[tam].getParcela_atual()) + "/" + String.valueOf(transacoes[tam].getParcela_total()) + "</td>");
+                                                out.print("</tr>");
+                                                tam++;
+                                            }
+                                        %>
             </table>
         </div>
-
-
     </main>
 
     <form action="Router" method="get">
@@ -109,11 +95,11 @@
         <div align="center">
         <button class="btn btn-dark" type="submit" name="path" value="Cadastrar Cartao">Cadastrar Cartao</button>
         <button class="btn btn-dark" type="submit" name="path" value="Registrar Transacao">Registrar Transacao</button>
-        </div>>
+        </div>
     </form>
     <%
-        String despesasMapJson = BD.getDespesasPorCategoria();
-        String receitaMapJson = BD.getReceitaPorCategoria();
+        String despesasMapJson = BD.getDespesasPorCategoria(Router.getId());
+        String receitaMapJson = BD.getReceitaPorCategoria(Router.getId());
      %>
 
     <script type="text/javascript" src="js/bootstrap.js"></script>
