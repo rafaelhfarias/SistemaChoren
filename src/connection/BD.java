@@ -113,7 +113,8 @@ public class BD {
             Transacao[] result = new Transacao[1000];
             Calendar cal = Calendar.getInstance();
             int dia = cal.get(Calendar.DAY_OF_MONTH);
-            String query = "SELECT * FROM Transacao WHERE id_usuario = '" + id + "' AND data >= date_add(now(),interval -DAY(now())+1 DAY) AND data <= LAST_DAY(now())";
+            int mes = cal.get(Calendar.MONTH) + 1;
+            String query = "SELECT * FROM Transacao WHERE id_usuario = '" + id + "' AND month(data) = '" + String.valueOf(mes) + "'";
             try {
                 PreparedStatement sql = con.prepareStatement(query);
                 ResultSet rs = sql.executeQuery();
@@ -192,7 +193,9 @@ public class BD {
             Connection con = ConexaoMySQL.getConexaoMySQL();
             Map<String,Integer> result = new HashMap<String,Integer>();
             String resultJson;
-            String query = "SELECT categoria,sum(valor) as saldo FROM Transacao WHERE data >= date_add(now(),interval -DAY(now())+1 DAY) AND data <= LAST_DAY(now()) AND valor < 0 AND id_usuario = (?) GROUP BY categoria";
+            Calendar cal = Calendar.getInstance();
+            int mes = cal.get(Calendar.MONTH) + 1;
+            String query = "SELECT categoria,sum(valor) as saldo FROM Transacao WHERE month(data) = '" + String.valueOf(mes) + "' AND valor < 0 AND id_usuario = (?) GROUP BY categoria";
             try {
                 PreparedStatement sql = con.prepareStatement(query);
                 sql.setInt(1,id);
@@ -215,7 +218,9 @@ public class BD {
             Connection con = ConexaoMySQL.getConexaoMySQL();
             Map<String,Integer> result = new HashMap<String,Integer>();
             String resultJson;
-            String query = "SELECT categoria,sum(valor) as saldo FROM Transacao WHERE data >= date_add(now(),interval -DAY(now())+1 DAY) AND data <= LAST_DAY(now()) AND valor > 0 AND id_usuario = (?) GROUP BY categoria";
+            Calendar cal = Calendar.getInstance();
+            int mes = cal.get(Calendar.MONTH) + 1;
+            String query = "SELECT nome,sum(valor) as saldo FROM Transacao WHERE month(data) = '" + String.valueOf(mes) + "' AND valor > 0 AND id_usuario = (?) GROUP BY nome";
             try {
                 PreparedStatement sql = con.prepareStatement(query);
                 sql.setInt(1,id);

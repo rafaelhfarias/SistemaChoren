@@ -63,7 +63,8 @@ public class Data {
         return new java.sql.Date(c.getTime().getTime());
     }
     public static void main(String args[]){
-        System.out.println(inicioFat(6));
-        System.out.println(fimFat(6));
+        Calendar cal = Calendar.getInstance();
+        System.out.println(cal.getTime());
+        System.out.println();
     }
 }
