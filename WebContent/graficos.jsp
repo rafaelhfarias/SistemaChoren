@@ -50,6 +50,10 @@
 		<%=BD.getSaldoTotalSeisMeses(Router.getId())%></h3>
 
 
+        <div class="row">
+            <div id="despesa_cat_seis_div"></div>
+            <div id="receita_cat_seis_div"></div>
+        </div>
 <div>
 	<div id="despesa_categoria_div"></div>
 </div>
@@ -59,6 +63,7 @@
 	<div id="receita_seis_div"></div>
 
 	<div id="despesa_seis_div"></div>
+        
 
 	<%
 		String receitaSeisMesesJson = BD.getReceitaSeisMeses(Router.getId());
@@ -66,6 +71,11 @@
 		String saldoSeisMesesJson = BD.getSaldoSeisMeses(Router.getId());
 		String despesaSeisMesesCategorizado = BD.getDespesaSeisMesesCategorizado(Router.getId());
 	%> </main>
+	<% 
+                String despesaCatSeisMesesJson = BD.getDespesasPorCategoriaSemestre(Router.getId());
+                String receitaCatSeisMesesJson = BD.getReceitaPorCategoriaSemestre(Router.getId());
+	%>
+	</main>
 
 	<script type="text/javascript">
 	    google.charts.load('current', {'packages':['corechart']});
@@ -107,6 +117,9 @@
         }
         
         
+        google.charts.setOnLoadCallback(drawChartDespesasCatSemestre);
+        google.charts.setOnLoadCallback(drawChartReceitasCatSemestre);
+      
         function drawChartDespesa() {
             var data = new google.visualization.DataTable();
             data.addColumn('string', 'Mes');
@@ -147,7 +160,7 @@
         }
 
 
-         function drawChartSaldo() {
+        function drawChartSaldo() {
             var data = new google.visualization.DataTable();
             data.addColumn('string', 'Mes');
             data.addColumn('number', 'Saldo');
@@ -164,6 +177,42 @@
                 'legend': {position: 'none'}
             };
             var chart = new google.visualization.ColumnChart(document.getElementById('saldo_seis_div'));
+            chart.draw(data, options);
+        }
+        function drawChartDespesasCatSemestre() {
+            var data = new google.visualization.DataTable();
+            data.addColumn('string', 'Categoria');
+            data.addColumn('number', 'Saldo');
+            var despesaMap = <%=despesaCatSeisMesesJson%> ;
+            for (const [key, value] of Object.entries(despesaMap)) {
+                var arr = [key, Math.abs(value)];
+                console.log(arr);
+                data.addRows([arr]);
+            }
+            var options = {
+                'title': 'Despesas por Categoria nos últmos 6 meses',
+                'width': 400,
+                'height': 300
+            };
+            var chart = new google.visualization.PieChart(document.getElementById('despesa_cat_seis_div'));
+            chart.draw(data, options);
+        }
+        function drawChartReceitasCatSemestre() {
+            var data = new google.visualization.DataTable();
+            data.addColumn('string', 'Categoria');
+            data.addColumn('number', 'Saldo');
+            var receitaMap = <%=receitaCatSeisMesesJson%> ;
+            for (const [key, value] of Object.entries(receitaMap)) {
+                var arr = [key, Math.abs(value)];
+                console.log(arr);
+                data.addRows([arr]);
+            }
+            var options = {
+                'title': 'Receita por Categoria nos últmos 6 meses',
+                'width': 400,
+                'height': 300
+            };
+            var chart = new google.visualization.PieChart(document.getElementById('receita_cat_seis_div'));
             chart.draw(data, options);
         }
     </script>

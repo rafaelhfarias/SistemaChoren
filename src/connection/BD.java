@@ -114,7 +114,8 @@ public class BD {
             Transacao[] result = new Transacao[1000];
             Calendar cal = Calendar.getInstance();
             int dia = cal.get(Calendar.DAY_OF_MONTH);
-            String query = "SELECT * FROM Transacao WHERE id_usuario = '" + id + "' AND data >= date_add(CURRENT_DATE,interval -DAY(CURRENT_DATE)+1 DAY) AND data <= LAST_DAY(CURRENT_DATE)";
+            int mes = cal.get(Calendar.MONTH) + 1;
+            String query = "SELECT * FROM Transacao WHERE id_usuario = '" + id + "' AND month(data) = '" + String.valueOf(mes) + "'";
             try {
                 PreparedStatement sql = con.prepareStatement(query);
                 ResultSet rs = sql.executeQuery();
@@ -193,7 +194,9 @@ public class BD {
             Connection con = ConexaoMySQL.getConexaoMySQL();
             Map<String,Integer> result = new HashMap<String,Integer>();
             String resultJson;
-            String query = "SELECT categoria,sum(valor) as saldo FROM Transacao WHERE data >= date_add(CURRENT_DATE,interval -DAY(CURRENT_DATE)+1 DAY) AND data <= LAST_DAY(CURRENT_DATE) AND valor < 0 AND id_usuario = (?) GROUP BY categoria";
+            Calendar cal = Calendar.getInstance();
+            int mes = cal.get(Calendar.MONTH) + 1;
+            String query = "SELECT categoria,sum(valor) as saldo FROM Transacao WHERE month(data) = '" + String.valueOf(mes) + "' AND valor < 0 AND id_usuario = (?) GROUP BY categoria";
             try {
                 PreparedStatement sql = con.prepareStatement(query);
                 sql.setInt(1,id);
@@ -216,7 +219,9 @@ public class BD {
             Connection con = ConexaoMySQL.getConexaoMySQL();
             Map<String,Integer> result = new HashMap<String,Integer>();
             String resultJson;
-            String query = "SELECT categoria,sum(valor) as saldo FROM Transacao WHERE data >= date_add(CURRENT_DATE,interval -DAY(CURRENT_DATE)+1 DAY) AND data <= LAST_DAY(CURRENT_DATE) AND valor > 0 AND id_usuario = (?) GROUP BY categoria";
+            Calendar cal = Calendar.getInstance();
+            int mes = cal.get(Calendar.MONTH) + 1;
+            String query = "SELECT nome,sum(valor) as saldo FROM Transacao WHERE month(data) = '" + String.valueOf(mes) + "' AND valor > 0 AND id_usuario = (?) GROUP BY nome";
             try {
                 PreparedStatement sql = con.prepareStatement(query);
                 sql.setInt(1,id);
@@ -236,7 +241,7 @@ public class BD {
         }
         public static double getSaldoMensal(){
             Connection con = ConexaoMySQL.getConexaoMySQL();
-            String query = "SELECT sum(valor) as saldo FROM Transacao WHERE data >= date_add(CURRENT_DATE,interval -DAY(CURRENT_DATE)+1 DAY) AND data <= LAST_DAY(CURRENT_DATE)";
+            String query = "SELECT sum(valor) as saldo FROM Transacao WHERE data >= date_add(now(),interval -DAY(now())+1 DAY) AND data <= LAST_DAY(now())";
             double result = 0;
             try {
                 PreparedStatement sql = con.prepareStatement(query);
@@ -421,7 +426,7 @@ public class BD {
             Connection con = ConexaoMySQL.getConexaoMySQL();
             Map<String,Double> result = new HashMap<String,Double>();
             String resultJson;
-            String query = "SELECT DATE_FORMAT(data,'%b-%y') as mes,sum(valor) as despesa FROM Transacao WHERE data <= LAST_DAY(CURRENT_DATE) AND id_usuario=(?) GROUP BY mes limit 6";
+            String query = "SELECT DATE_FORMAT(data,'%b-%y') as mes,sum(valor) as despesa FROM Transacao WHERE data <= LAST_DAY(now()) AND id_usuario=(?) GROUP BY mes limit 6";
             try {
                 PreparedStatement sql = con.prepareStatement(query);
                 sql.setInt(1, id);
@@ -444,7 +449,7 @@ public class BD {
             Connection con = ConexaoMySQL.getConexaoMySQL();
             Map<String,Double> result = new HashMap<String,Double>();
             String resultJson;
-            String query = "SELECT DATE_FORMAT(data,'%b-%y') as mes,sum(valor) as despesa FROM Transacao WHERE data <= LAST_DAY(CURRENT_DATE) AND valor < 0 and id_usuario=(?) GROUP BY mes limit 6";
+            String query = "SELECT DATE_FORMAT(data,'%b-%y') as mes,sum(valor) as despesa FROM Transacao WHERE data <= LAST_DAY(now()) AND valor < 0 and id_usuario=(?) GROUP BY mes limit 6";
             try {
                 PreparedStatement sql = con.prepareStatement(query);
                 sql.setInt(1, id);
@@ -467,7 +472,7 @@ public class BD {
             Connection con = ConexaoMySQL.getConexaoMySQL();
             Map<String,Double> result = new HashMap<String,Double>();
             String resultJson;
-            String query = "SELECT DATE_FORMAT(data,'%b-%y') as mes,sum(valor) as despesa FROM Transacao WHERE data <= LAST_DAY(CURRENT_DATE) AND valor > 0 and id_usuario=(?) GROUP BY mes limit 6";
+            String query = "SELECT DATE_FORMAT(data,'%b-%y') as mes,sum(valor) as despesa FROM Transacao WHERE data <= LAST_DAY(now()) AND valor > 0 and id_usuario=(?) GROUP BY mes limit 6";
             try {
                 PreparedStatement sql = con.prepareStatement(query);
                 sql.setInt(1, id);
@@ -489,7 +494,7 @@ public class BD {
         public static double getSaldoTotalSeisMeses(int id) {
         	Connection con = ConexaoMySQL.getConexaoMySQL();
         	double result = 0;
-        	String query="SELECT SUM(saldo) as saldo from (SELECT DATE_FORMAT(data,'%b-%y') as mes,sum(valor) as saldo FROM Transacao WHERE (data <= LAST_DAY(CURRENT_DATE) AND id_usuario=(?)) GROUP BY mes limit 6) as aux";
+        	String query="SELECT SUM(saldo) as saldo from (SELECT DATE_FORMAT(data,'%b-%y') as mes,sum(valor) as saldo FROM Transacao WHERE (data <= LAST_DAY(now()) AND id_usuario=(?)) GROUP BY mes limit 6) as aux";
         	try {
                 PreparedStatement sql = con.prepareStatement(query);
                 sql.setInt(1, id);
@@ -550,4 +555,62 @@ public class BD {
 //            return "-1";
 //        }
         
+       public static String getDespesasPorCategoriaSemestre(int id){
+            Connection con = ConexaoMySQL.getConexaoMySQL();
+            Map<String,Integer> result = new HashMap<String,Integer>();
+            String resultJson;
+            Calendar cal = Calendar.getInstance();
+            int mes = cal.get(Calendar.MONTH) + 1;
+            int ano = cal.get(Calendar.YEAR);
+            cal.set(Calendar.DAY_OF_MONTH, 1);
+            cal.add(Calendar.MONTH, -5);
+            Date inicio = new Date(cal.getTime().getTime());
+            Date fim = Data.dt(ano, mes, Data.getLastDay(mes, ano));
+            String query = "SELECT categoria,sum(valor) as saldo FROM Transacao WHERE data BETWEEN '" + String.valueOf(inicio) + "' AND '" + String.valueOf(fim) + "' AND valor < 0 AND id_usuario = (?) GROUP BY categoria";
+            try {
+                PreparedStatement sql = con.prepareStatement(query);
+                sql.setInt(1,id);
+                ResultSet rs = sql.executeQuery();
+                while(rs.next()){
+                	result.put(rs.getString("categoria"),rs.getInt("saldo"));
+                }
+                con.close();
+                Gson gson = new Gson();
+                resultJson = gson.toJson(result);
+                return resultJson;
+            } catch (SQLException ex) {
+                Logger.getLogger(ConexaoMySQL.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            return "";
+        }
+        public static String getReceitaPorCategoriaSemestre(int id){
+            Connection con = ConexaoMySQL.getConexaoMySQL();
+            Map<String,Integer> result = new HashMap<String,Integer>();
+            String resultJson;
+            Calendar cal = Calendar.getInstance();
+            int mes = cal.get(Calendar.MONTH) + 1;
+            int ano = cal.get(Calendar.YEAR);
+            cal.set(Calendar.DAY_OF_MONTH, 1);
+            cal.add(Calendar.MONTH, -5);
+            Date inicio = new Date(cal.getTime().getTime());
+            Date fim = Data.dt(ano, mes, Data.getLastDay(mes, ano));
+            String query = "SELECT nome,sum(valor) as saldo FROM Transacao WHERE data BETWEEN '" + String.valueOf(inicio) + "' AND '" + String.valueOf(fim) + "' AND valor > 0 AND id_usuario = (?) GROUP BY nome";
+            try {
+                PreparedStatement sql = con.prepareStatement(query);
+                sql.setInt(1,id);
+                ResultSet rs = sql.executeQuery();
+                while(rs.next()){
+                	result.put(rs.getString("nome"),rs.getInt("saldo"));
+                }
+                con.close();
+                Gson gson = new Gson();
+                resultJson = gson.toJson(result);
+                return resultJson;
+            } catch (SQLException ex) {
+                Logger.getLogger(ConexaoMySQL.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            return "";
+        }
 }
