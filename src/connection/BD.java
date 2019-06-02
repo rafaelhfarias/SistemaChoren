@@ -23,6 +23,7 @@ import router.Router;
 import util.Cartao;
 import util.Data;
 import util.Transacao;
+import util.TransacaoPorMesCategoria;
 
 /**
  *
@@ -221,7 +222,7 @@ public class BD {
                 sql.setInt(1,id);
                 ResultSet rs = sql.executeQuery();
                 while(rs.next()){
-                	result.put(rs.getString("nome"),rs.getInt("saldo"));
+                	result.put(rs.getString("categoria"),rs.getInt("saldo"));
                 }
                 con.close();
                 Gson gson = new Gson();
@@ -505,5 +506,48 @@ public class BD {
             return result;
         }
        
+        public static String getDespesaSeisMesesCategorizado(int id){
+            Connection con = ConexaoMySQL.getConexaoMySQL();
+            TransacaoPorMesCategoria[] result = new TransacaoPorMesCategoria[1000];
+            String query = "SELECT DATE_FORMAT(data,'%b-%y') as mes, SUM(if(categoria='Alimentação',valor,0)) as 'alimentação', SUM(if(categoria='Casa',valor,0)) as 'casa', SUM(if(categoria='Comunicação',valor,0)) as 'comunicação', SUM(if(categoria='Despesas Pessoais',valor,0)) as 'pessoais', SUM(if(categoria='Educação',valor,0)) as 'educação', SUM(if(categoria='Investimento',valor,0)) as 'investimento', SUM(if(categoria='Lazer',valor,0)) as 'lazer', SUM(if(categoria='Saúde',valor,0)) as 'saúde', SUM(if(categoria='Tarifas e Impostos',valor,0)) as 'tarifas', SUM(if(categoria='Transporte',valor,0)) as 'transporte', SUM(if(categoria='Outros',valor,0)) as 'outros' FROM Transacao WHERE id_usuario= (?) and data <= LAST_DAY(CURRENT_DATE) and valor<0 group by DATE_FORMAT(data,'%b-%y') limit 6";
+            try {
+                PreparedStatement sql = con.prepareStatement(query);
+                sql.setInt(1, id);
+                ResultSet rs = sql.executeQuery();
+                int i=0;
+                while(rs.next()){
+                    result[i++] = new TransacaoPorMesCategoria(rs.getString("mes"),rs.getDouble("alimentação"),rs.getDouble("casa"),rs.getDouble("comunicação"),rs.getDouble("pessoais"),rs.getDouble("educação"),rs.getDouble("investimento"),rs.getDouble("lazer"),rs.getDouble("saúde"),rs.getDouble("tarifas"),rs.getDouble("transporte"),rs.getDouble("outros"));
+                }
+                con.close();
+                Gson gson = new Gson();
+                return gson.toJson(result);
+            } catch (SQLException ex) {
+                Logger.getLogger(ConexaoMySQL.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            return "-1";
+        }
+       
+//        public static String getReceitaSeisMesesCategorizado(int id){
+//            Connection con = ConexaoMySQL.getConexaoMySQL();
+//            TransacaoPorMesCategoria[] result = new TransacaoPorMesCategoria[1000];
+//            String query = "SELECT DATE_FORMAT(data,'%b-%y') as mes, SUM(if(categoria='Alimentação',valor,0)) as 'alimentação', SUM(if(categoria='Casa',valor,0)) as 'casa', SUM(if(categoria='Comunicação',valor,0)) as 'comunicação', SUM(if(categoria='Despesas Pessoais',valor,0)) as 'pessoais', SUM(if(categoria='Educação',valor,0)) as 'educação', SUM(if(categoria='Investimento',valor,0)) as 'investimento', SUM(if(categoria='Lazer',valor,0)) as 'lazer', SUM(if(categoria='Saúde',valor,0)) as 'saúde', SUM(if(categoria='Tarifas e Impostos',valor,0)) as 'tarifas', SUM(if(categoria='Transporte',valor,0)) as 'transporte', SUM(if(categoria='Outros',valor,0)) as 'outros' FROM Transacao WHERE id_usuario= (?) and data <= LAST_DAY(CURRENT_DATE) and valor>0 group by DATE_FORMAT(data,'%b-%y') limit 6";
+//            try {
+//                PreparedStatement sql = con.prepareStatement(query);
+//                sql.setInt(1, id);
+//                ResultSet rs = sql.executeQuery();
+//                int i=0;
+//                while(rs.next()){
+//                    result[i++] = new TransacaoPorMesCategoria(rs.getString("mes"),rs.getDouble("alimentação"),rs.getDouble("casa"),rs.getDouble("comunicação"),rs.getDouble("pessoais"),rs.getDouble("educação"),rs.getDouble("investimento"),rs.getDouble("lazer"),rs.getDouble("saúde"),rs.getDouble("tarifas"),rs.getDouble("transporte"),rs.getDouble("outros"));
+//                }
+//                con.close();
+//                Gson gson = new Gson();
+//                return gson.toJson(result);
+//            } catch (SQLException ex) {
+//                Logger.getLogger(ConexaoMySQL.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//            
+//            return "-1";
+//        }
         
 }

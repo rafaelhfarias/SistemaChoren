@@ -85,10 +85,6 @@
 	<h4>
 		Extrato mensal:
 	</h4>
-	<div class="row">
-		<div id="despesas_chart_div"></div>
-		<div id="receita_chart_div"></div>
-	</div>
 	<div>
 		<table class="table table-striped table-sm">
 			<%
@@ -132,53 +128,10 @@
 	%>
 
 	<script type="text/javascript" src="js/bootstrap.js"></script>
-	<script type="text/javascript">
-        google.charts.load('current', { 'packages': ['corechart'] });
-        google.charts.setOnLoadCallback(drawChart);
 
-        function drawChart() {
-            var data = new google.visualization.DataTable();
-            data.addColumn('string', 'Categoria');
-            data.addColumn('number', 'Saldo');
-            var despesaMap = <%=despesasMapJson%> ;
-            for (const [key, value] of Object.entries(despesaMap)) {
-                var arr = [key, Math.abs(value)];
-                console.log(arr);
-                data.addRows([arr]);
-            }
-            var options = {
-                'title': 'Despesas por Categoria',
-                'width': 400,
-                'height': 300
-            };
-            var chart = new google.visualization.PieChart(document.getElementById('despesas_chart_div'));
-            chart.draw(data, options);
-        }
-    </script>
 
-	<script type="text/javascript">
-        google.charts.load('current', { 'packages': ['corechart'] });
-        google.charts.setOnLoadCallback(drawChart);
 
-        function drawChart() {
-            var data = new google.visualization.DataTable();
-            data.addColumn('string', 'Categoria');
-            data.addColumn('number', 'Saldo');
-            var receitaMap = <%=receitaMapJson%> ;
-            for (const [key, value] of Object.entries(receitaMap)) {
-                var arr = [key, Math.abs(value)];
-                console.log(arr);
-                data.addRows([arr]);
-            }
-            var options = {
-                'title': 'Receita por Categoria',
-                'width': 400,
-                'height': 300
-            };
-            var chart = new google.visualization.PieChart(document.getElementById('receita_chart_div'));
-            chart.draw(data, options);
-        }
-    </script>
+
 
 </body>
 
